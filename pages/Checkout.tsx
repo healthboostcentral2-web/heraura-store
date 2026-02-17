@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { Order, ShippingDetails } from '../types';
+import { ShippingDetails } from '../types';
 import { Button } from '../components/Button';
 import { PaymentGateway } from '../components/PaymentGateway';
 import { ArrowLeft, MapPin, Mail, Phone, User, ShieldCheck } from 'lucide-react';
 import { db } from '../lib/db';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
-interface CheckoutProps {
-  onOrderComplete: (order: Order) => void;
-}
-
-export const Checkout: React.FC<CheckoutProps> = ({ onOrderComplete }) => {
+export const Checkout: React.FC = () => {
   const navigate = useNavigate();
+  const { cart, clearCart } = useCart();
   const [showGateway, setShowGateway] = useState(false);
 
   const [form, setForm] = useState<ShippingDetails>({
@@ -25,7 +23,6 @@ export const Checkout: React.FC<CheckoutProps> = ({ onOrderComplete }) => {
       country: ''
   });
 
-  const cart = db.getCart();
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 200 ? 0 : 15;
   const total = subtotal + shipping;
@@ -49,7 +46,8 @@ export const Checkout: React.FC<CheckoutProps> = ({ onOrderComplete }) => {
   const handlePaymentSuccess = async (method: string, transactionId: string) => {
       setShowGateway(false);
       
-      const newOrder = await db.createOrder({
+      // Ideally move this order creation to a context, but keeping it here is fine for now
+      await db.createOrder({
           customerId: 'cust_guest', 
           shippingDetails: form,
           items: cart,
@@ -58,8 +56,11 @@ export const Checkout: React.FC<CheckoutProps> = ({ onOrderComplete }) => {
           paymentStatus: 'PAID',
           transactionId: transactionId
       });
-
-      onOrderComplete(newOrder);
+      
+      clearCart();
+      // NOTE: In a real app we would pass the order ID, but for simplicity we rely on the backend/db
+      // OrderSuccess page currently fetches the latest order or we could pass state
+      navigate('/success');
   };
 
   const InputField = ({ label, placeholder, type = "text", icon: Icon, value, onChange, required = false }: any) => (

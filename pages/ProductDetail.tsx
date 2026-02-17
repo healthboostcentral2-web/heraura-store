@@ -5,15 +5,19 @@ import { ProductCard } from '../components/ProductCard';
 import { Star, Minus, Plus, Share2, Heart, ShieldCheck, Truck, Ruler, ChevronRight, MessageCircle, Bell, Search } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 interface ProductDetailProps {
-  onAddToCart: (item: CartItem) => void;
   allProducts: Product[];
 }
 
-export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allProducts }) => {
+export const ProductDetail: React.FC<ProductDetailProps> = ({ allProducts }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  
   const product = allProducts.find(p => p.id === id) || null;
 
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -51,9 +55,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
   
   // Recommendations logic
   const similarProducts = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-  const completeLookProducts = allProducts.filter(p => p.id !== product.id).slice(0, 3); // Simple mock recommendation logic
+  const completeLookProducts = allProducts.filter(p => p.id !== product.id).slice(0, 3);
 
   const isOutOfStock = product.stock === 0;
+  const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCartClick = () => {
     if (!product || isOutOfStock) return;
@@ -65,8 +70,16 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
       selectedColor: selectedColor || product.colors?.[0]
     };
     
-    onAddToCart(cartItem);
+    addToCart(cartItem);
     navigate('/cart');
+  };
+
+  const handleToggleWishlist = () => {
+      if (isWishlisted) {
+          removeFromWishlist(product.id);
+      } else {
+          addToWishlist(product);
+      }
   };
 
   const handleProductClick = (product: Product) => {
@@ -86,7 +99,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
         console.log('Share canceled');
       }
     } else {
-      // Fallback
       await navigator.clipboard.writeText(window.location.href);
       alert("Link copied to clipboard!");
     }
@@ -149,11 +161,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
         {/* Floating Actions */}
         <div className="absolute top-4 right-4 flex flex-col gap-3">
             <button 
-                className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-rose-500 transition-all active:scale-90"
-                onClick={() => navigate('/wishlist')}
+                className={`p-3 backdrop-blur-md rounded-full shadow-lg transition-all active:scale-90 ${isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/80 text-stone-600 hover:text-rose-500'}`}
+                onClick={handleToggleWishlist}
                 aria-label="Add to Wishlist"
             >
-                <Heart size={20} />
+                <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
             </button>
             <button 
                 className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-blue-500 transition-all active:scale-90" 

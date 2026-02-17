@@ -1,19 +1,15 @@
 import React from 'react';
-import { CartItem } from '../types';
 import { Button } from '../components/Button';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Tag } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
-interface CartProps {
-  cart: CartItem[];
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onRemoveItem: (id: string) => void;
-}
-
-export const Cart: React.FC<CartProps> = ({ cart, onUpdateQuantity, onRemoveItem }) => {
+export const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const { cart, updateQuantity, removeFromCart, cartTotal } = useCart();
+  
+  const subtotal = cartTotal;
   const shipping = subtotal > 200 ? 0 : 15.00;
   const total = subtotal + shipping;
 
@@ -55,7 +51,7 @@ export const Cart: React.FC<CartProps> = ({ cart, onUpdateQuantity, onRemoveItem
                         <div className="flex justify-between items-start">
                             <h3 className="font-serif text-base text-stone-900 leading-tight pr-2 line-clamp-2">{item.name}</h3>
                             <button 
-                                onClick={() => onRemoveItem(item.id)}
+                                onClick={() => removeFromCart(item.id)}
                                 className="text-stone-300 hover:text-rose-400 transition-colors p-1 -mr-2"
                             >
                                 <Trash2 size={16}/>
@@ -73,7 +69,7 @@ export const Cart: React.FC<CartProps> = ({ cart, onUpdateQuantity, onRemoveItem
                         
                         <div className="flex items-center bg-stone-50 rounded-full px-1 py-1 gap-2 border border-stone-200">
                             <button 
-                                onClick={() => onUpdateQuantity(item.id, -1)}
+                                onClick={() => updateQuantity(item.id, -1)}
                                 className="w-6 h-6 rounded-full bg-white text-stone-600 flex items-center justify-center shadow-sm hover:text-stone-900 disabled:opacity-50"
                                 disabled={item.quantity <= 1}
                             >
@@ -81,7 +77,7 @@ export const Cart: React.FC<CartProps> = ({ cart, onUpdateQuantity, onRemoveItem
                             </button>
                             <span className="text-xs font-bold text-stone-900 w-4 text-center">{item.quantity}</span>
                             <button 
-                                onClick={() => onUpdateQuantity(item.id, 1)}
+                                onClick={() => updateQuantity(item.id, 1)}
                                 className="w-6 h-6 rounded-full bg-white text-stone-600 flex items-center justify-center shadow-sm hover:text-stone-900"
                             >
                                 <Plus size={12}/>

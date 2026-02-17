@@ -5,6 +5,7 @@ import { Button } from '../components/Button';
 import { Heart } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
+import { useWishlist } from '../context/WishlistContext';
 
 interface WishlistProps {
   products: Product[];
@@ -12,8 +13,11 @@ interface WishlistProps {
 
 export const Wishlist: React.FC<WishlistProps> = ({ products }) => {
   const navigate = useNavigate();
-  // Mock wishlist items (take first 3 available products for visual demo)
-  const wishlistItems = products.length > 0 ? [products[0], products[2], products[3]].filter(Boolean) : [];
+  const { wishlist } = useWishlist();
+  
+  // Use wishlist from context. The passed products prop might be used for lookups if wishlist only stored IDs, 
+  // but our context stores full objects. We'll rely on context.
+  const wishlistItems = wishlist;
 
   const handleProductClick = (product: Product) => {
     navigate(`/product/${product.id}`);

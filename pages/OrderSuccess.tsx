@@ -1,17 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Order } from '../types';
 import { Button } from '../components/Button';
 import { CheckCircle, Package, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../lib/db';
 
 interface OrderSuccessProps {
-  order: Order | null;
+  order?: Order | null;
 }
 
-export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order }) => {
+export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order: propOrder }) => {
   const navigate = useNavigate();
+  const [order, setOrder] = useState<Order | null>(propOrder || null);
+  
+  useEffect(() => {
+    if (!order) {
+        // Try to fetch latest order
+        const fetchLatest = async () => {
+            const orders = await db.getOrders();
+            if (orders.length > 0) {
+                setOrder(orders[0]); // Most recent
+            }
+        }
+        fetchLatest();
+    }
+  }, [order]);
 
-  if (!order) return null;
+  if (!order) {
+      // Fallback state while loading or if no order found
+      return (
+        <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-6 text-center">
+             <div className="w-12 h-12 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin mb-4"></div>
+             <p className="text-stone-400">Processing...</p>
+        </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-6 animate-fade-in text-center pb-24">
@@ -42,7 +65,7 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order }) => {
              </div>
              <div className="flex justify-between text-sm">
                 <span className="text-stone-600">Payment Method</span>
-                <span className="font-medium text-stone-900 capitalize">{order.paymentMethod.replace('_', ' ')}</span>
+                <span className="font-medium text-stone-900 capitalize">{order.paymentMethod?.replace('_', ' ') || 'Card'}</span>
              </div>
              <div className="flex justify-between text-sm">
                 <span className="text-stone-600">Estimated Delivery</span>
@@ -52,7 +75,7 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order }) => {
 
         <div className="mt-6 bg-stone-50 p-3 rounded-xl">
             <p className="text-xs text-stone-500 leading-relaxed">
-                A confirmation email has been sent to <span className="font-bold text-stone-900">{order.shippingDetails.email}</span>
+                A confirmation email has been sent to <span className="font-bold text-stone-900">{order.shippingDetails?.email}</span>
             </p>
         </div>
       </div>

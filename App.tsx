@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { Product, CartItem, Category, Order } from './types';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { Product, Category } from './types';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { db } from './lib/db';
 import { Button } from './components/Button';
 import { WifiOff } from 'lucide-react';
 
-// Lazy Load Pages for Performance
+// Lazy Load Pages
 const Home = React.lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
 const CategoryPage = React.lazy(() => import('./pages/Category').then(module => ({ default: module.CategoryPage })));
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail').then(module => ({ default: module.ProductDetail })));
@@ -30,13 +30,10 @@ const LoadingScreen = () => (
 
 const App: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [lastOrder, setLastOrder] = useState<Order | null>(null);
   
   // Data State
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +47,6 @@ const App: React.FC = () => {
       ]);
       setProducts(fetchedProducts || []);
       setCategories(fetchedCategories || []);
-      setCart(db.getCart() || []);
     } catch (err) {
       console.error("Failed to fetch data:", err);
       setError("Unable to load application data. Please check your connection.");
@@ -70,53 +66,6 @@ const App: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
-
-  const handleAddToCart = async (newItem: CartItem) => {
-    const existingItemIndex = cart.findIndex(
-      item => 
-        item.id === newItem.id && 
-        item.selectedSize === newItem.selectedSize && 
-        item.selectedColor.name === newItem.selectedColor.name
-    );
-
-    let updatedCart;
-    if (existingItemIndex > -1) {
-      updatedCart = [...cart];
-      updatedCart[existingItemIndex] = {
-        ...updatedCart[existingItemIndex],
-        quantity: updatedCart[existingItemIndex].quantity + newItem.quantity
-      };
-    } else {
-      updatedCart = [...cart, newItem];
-    }
-    
-    setCart(updatedCart);
-    await db.saveCart(updatedCart);
-  };
-
-  const handleUpdateQuantity = async (id: string, delta: number) => {
-    const updatedCart = cart.map(item => {
-      if (item.id === id) {
-        const newQuantity = Math.max(1, item.quantity + delta);
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-    setCart(updatedCart);
-    await db.saveCart(updatedCart);
-  };
-
-  const handleRemoveItem = async (id: string) => {
-    const updatedCart = cart.filter(item => item.id !== id);
-    setCart(updatedCart);
-    await db.saveCart(updatedCart);
-  };
-
-  const handleOrderComplete = (order: Order) => {
-    setLastOrder(order);
-    setCart([]);
-    navigate('/success');
-  };
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -150,7 +99,6 @@ const App: React.FC = () => {
       <div className="w-full max-w-md bg-stone-50 min-h-screen shadow-2xl relative overflow-hidden">
         {location.pathname !== '/login' && location.pathname !== '/admin' && location.pathname !== '/success' && (
             <Navbar 
-                cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
                 products={products}
                 categories={categories}
             />
@@ -160,10 +108,10 @@ const App: React.FC = () => {
              <Routes>
                 <Route path="/" element={<Home products={products} categories={categories} />} />
                 <Route path="/categories" element={<CategoryPage products={products} categories={categories} />} />
-                <Route path="/product/:id" element={<ProductDetail allProducts={products} onAddToCart={handleAddToCart} />} />
-                <Route path="/cart" element={<Cart cart={cart} onUpdateQuantity={handleUpdateQuantity} onRemoveItem={handleRemoveItem} />} />
-                <Route path="/checkout" element={<Checkout onOrderComplete={handleOrderComplete} />} />
-                <Route path="/success" element={<OrderSuccess order={lastOrder} />} />
+                <Route path="/product/:id" element={<ProductDetail allProducts={products} />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/success" element={<OrderSuccess />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/profile" element={<Dashboard />} />
                 <Route path="/tracking" element={<OrderTracking />} />

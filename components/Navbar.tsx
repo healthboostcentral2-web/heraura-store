@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Search, Menu, X, ChevronRight, User, Heart, Zap, TrendingUp } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Product, Category } from '../types';
+import { useCart } from '../context/CartContext';
 
 interface NavbarProps {
-  cartCount: number;
   products: Product[];
   categories: Category[];
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
-  cartCount,
   products = [],
   categories = []
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { cartCount } = useCart();
   const isHome = location.pathname === '/';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

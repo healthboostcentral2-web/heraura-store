@@ -2,9 +2,16 @@ import React from 'react';
 import { Button } from '../components/Button';
 import { ArrowLeft, Package, Heart, MapPin, Settings, LogOut, ChevronRight, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useUser();
+
+  const handleLogout = () => {
+      logout();
+      navigate('/');
+  };
 
   const MENU_ITEMS = [
     { icon: Package, label: 'My Orders', desc: 'Track, return, or buy things again', action: () => navigate('/tracking') },
@@ -29,9 +36,11 @@ export const Dashboard: React.FC = () => {
                      <User size={40} />
                  </div>
                  <div>
-                     <h3 className="font-serif text-xl text-stone-900">Guest User</h3>
-                     <p className="text-sm text-stone-500">guest@example.com</p>
-                     <button className="text-xs font-bold text-rose-500 mt-1">Create Account</button>
+                     <h3 className="font-serif text-xl text-stone-900">{user?.name || 'Guest User'}</h3>
+                     <p className="text-sm text-stone-500">{user?.email || 'guest@example.com'}</p>
+                     {!user && (
+                        <button onClick={() => navigate('/login')} className="text-xs font-bold text-rose-500 mt-1">Sign In / Create Account</button>
+                     )}
                  </div>
              </div>
         </div>
@@ -67,7 +76,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div className="text-left">
                         <p className="text-sm font-bold text-white">Admin Panel</p>
-                        <p className="text-[10px] text-stone-400">Manage products & orders</p>
+                        <p className="text--[10px] text-stone-400">Manage products & orders</p>
                     </div>
                 </div>
                 <ChevronRight size={16} className="text-stone-500 group-hover:text-white" />
@@ -75,15 +84,17 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Sign Out */}
-        <div className="px-6">
-            <button 
-                onClick={() => navigate('/')}
-                className="w-full p-4 flex items-center justify-center gap-2 text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors text-sm font-bold"
-            >
-                <LogOut size={18} />
-                Sign Out
-            </button>
-        </div>
+        {user && (
+            <div className="px-6">
+                <button 
+                    onClick={handleLogout}
+                    className="w-full p-4 flex items-center justify-center gap-2 text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors text-sm font-bold"
+                >
+                    <LogOut size={18} />
+                    Sign Out
+                </button>
+            </div>
+        )}
     </div>
   );
 };

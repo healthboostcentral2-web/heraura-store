@@ -1,6 +1,4 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from './Button';
-import { RefreshCcw, AlertTriangle } from 'lucide-react';
 
 interface Props {
   children?: ReactNode;
@@ -27,23 +25,17 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 p-6 text-center">
-            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-6 text-rose-500 shadow-sm border border-rose-100">
-                <AlertTriangle size={32} />
-            </div>
-            <h1 className="font-serif text-3xl text-stone-900 mb-3">Something went wrong</h1>
-            <p className="text-stone-500 mb-8 max-w-xs mx-auto leading-relaxed">
-                We encountered an unexpected issue. Please try refreshing the page.
-            </p>
-            <Button onClick={() => window.location.reload()}>
-                <RefreshCcw size={18} className="mr-2 inline" />
-                Reload Application
-            </Button>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-                <div className="mt-8 p-4 bg-stone-100 rounded-xl text-left overflow-auto max-w-full text-xs font-mono text-stone-600 border border-stone-200 w-full">
-                    {this.state.error.toString()}
-                </div>
-            )}
+        <div className="p-4 bg-red-50 text-red-900 border border-red-200 rounded m-4">
+            <h2 className="font-bold mb-2">Application Error</h2>
+            <pre className="text-xs overflow-auto whitespace-pre-wrap">
+                {this.state.error?.toString()}
+            </pre>
+            <button 
+                className="mt-4 px-4 py-2 bg-red-100 hover:bg-red-200 rounded text-sm font-bold"
+                onClick={() => window.location.reload()}
+            >
+                Reload
+            </button>
         </div>
       );
     }
