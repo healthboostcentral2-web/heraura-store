@@ -6,13 +6,22 @@
  */
 
 const getEnv = (key: string, fallback: string = '') => {
-  try {
-    // Check both standard process.env (Create React App/Next.js/Node) and import.meta.env (Vite) patterns
-    // For this environment, we stick to process.env as the primary interface
-    return process.env[key] || fallback;
-  } catch {
-    return fallback;
+  // Vite Support: Check import.meta.env
+  // Cast to any to avoid TS error: Property 'env' does not exist on type 'ImportMeta'
+  if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
+    return (import.meta as any).env[key];
   }
+
+  // Node/CRA Support: Check process.env (safely)
+  try {
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+      return process.env[key];
+    }
+  } catch {
+    // process is not defined
+  }
+
+  return fallback;
 };
 
 export const config = {
