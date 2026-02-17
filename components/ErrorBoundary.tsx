@@ -1,4 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Button } from './Button';
+import { RefreshCcw } from 'lucide-react';
 
 interface Props {
   children?: ReactNode;
@@ -6,7 +8,6 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error?: Error;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -14,28 +15,26 @@ export class ErrorBoundary extends Component<Props, State> {
     hasError: false
   };
 
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  public static getDerivedStateFromError(_: Error): State {
+    return { hasError: true };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error("HerAura Runtime Error:", error, errorInfo);
   }
 
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 bg-red-50 text-red-900 border border-red-200 rounded m-4">
-            <h2 className="font-bold mb-2">Application Error</h2>
-            <pre className="text-xs overflow-auto whitespace-pre-wrap">
-                {this.state.error?.toString()}
-            </pre>
-            <button 
-                className="mt-4 px-4 py-2 bg-red-100 hover:bg-red-200 rounded text-sm font-bold"
-                onClick={() => window.location.reload()}
-            >
-                Reload
-            </button>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 p-6 text-center">
+            <h2 className="font-serif text-2xl text-stone-900 mb-2">Something went wrong</h2>
+            <p className="text-stone-500 mb-6 max-w-xs mx-auto">
+                We encountered an unexpected issue. Please try refreshing the page.
+            </p>
+            <Button onClick={() => window.location.reload()}>
+                <RefreshCcw size={18} className="mr-2 inline" />
+                Reload Application
+            </Button>
         </div>
       );
     }

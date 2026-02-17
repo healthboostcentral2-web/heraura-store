@@ -13,7 +13,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<Customer | null>(null);
 
     const login = (email: string) => {
-        // Mock login
+        // Mock login with safe defaults
         setUser({ id: '1', name: 'Guest User', email });
     };
 

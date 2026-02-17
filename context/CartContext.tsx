@@ -18,7 +18,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    setCart(db.getCart());
+    try {
+      const savedCart = db.getCart();
+      setCart(savedCart);
+    } catch (e) {
+      console.error("Failed to load cart from DB", e);
+      setCart([]);
+    }
   }, []);
 
   const saveCart = (newCart: CartItem[]) => {
