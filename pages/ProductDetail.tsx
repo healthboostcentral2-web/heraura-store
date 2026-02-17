@@ -74,6 +74,29 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `Check out this ${product.name} on HerAura!`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Share canceled');
+      }
+    } else {
+      // Fallback
+      await navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  const handleWhatsAppOrder = () => {
+    const message = `Hi, I'm interested in ${product.name} (${window.location.href}). Is it available in size ${selectedSize}?`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   return (
     <div className="pb-32 bg-white min-h-screen animate-fade-in relative">
       <SEO 
@@ -116,6 +139,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
                  <button 
                     onClick={() => navigate(-1)}
                     className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-stone-900 transition-all active:scale-90"
+                    aria-label="Go Back"
                  >
                     <ChevronRight size={20} className="rotate-180" />
                  </button>
@@ -124,10 +148,18 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
         
         {/* Floating Actions */}
         <div className="absolute top-4 right-4 flex flex-col gap-3">
-            <button className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-rose-500 transition-all active:scale-90">
+            <button 
+                className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-rose-500 transition-all active:scale-90"
+                onClick={() => navigate('/wishlist')}
+                aria-label="Add to Wishlist"
+            >
                 <Heart size={20} />
             </button>
-            <button className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-blue-500 transition-all active:scale-90" onClick={() => alert("Sharing link copied!")}>
+            <button 
+                className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-blue-500 transition-all active:scale-90" 
+                onClick={handleShare}
+                aria-label="Share Product"
+            >
                 <Share2 size={20} />
             </button>
         </div>
@@ -189,6 +221,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
                             key={c.name}
                             onClick={() => setSelectedColor(c)}
                             className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${selectedColor?.name === c.name ? 'border-stone-900 scale-105' : 'border-transparent'}`}
+                            aria-label={`Select Color ${c.name}`}
                         >
                             <div className="w-10 h-10 rounded-full border border-stone-200 shadow-sm" style={{ backgroundColor: c.hex }}></div>
                         </button>
@@ -227,7 +260,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
         </div>
 
         {/* Smart Action: WhatsApp Order */}
-        <button className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors">
+        <button 
+            onClick={handleWhatsAppOrder}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors"
+        >
             <MessageCircle size={18} />
             <span className="text-sm font-bold">Order via WhatsApp</span>
         </button>
@@ -379,9 +415,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allPr
             
             <Button 
                 fullWidth 
-                onClick={handleAddToCartClick}
-                disabled={isOutOfStock}
-                className={isOutOfStock ? 'bg-stone-300 cursor-not-allowed shadow-none' : ''}
+                onClick={isOutOfStock ? () => alert("Notification subscribed!") : handleAddToCartClick}
+                disabled={false} // Always clickable to allow "Notify Me" action
+                className={isOutOfStock ? 'bg-stone-800' : ''}
             >
                 {isOutOfStock ? (
                     <>

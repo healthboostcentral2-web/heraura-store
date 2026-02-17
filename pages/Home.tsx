@@ -123,7 +123,11 @@ export const Home: React.FC<HomeProps> = ({ products, categories }) => {
             </div>
             <div className="flex gap-6 overflow-x-auto no-scrollbar px-6 pb-2">
               {categories.map(cat => (
-                <div key={cat.id} className="flex-shrink-0 flex flex-col items-center gap-3 group cursor-pointer" onClick={() => navigate('/categories')}>
+                <button 
+                    key={cat.id} 
+                    className="flex-shrink-0 flex flex-col items-center gap-3 group cursor-pointer focus:outline-none" 
+                    onClick={() => navigate('/categories')}
+                >
                   <div className="w-20 h-20 rounded-full p-[2px] border border-rose-200 group-hover:border-rose-400 transition-all">
                     <div className="w-full h-full rounded-full overflow-hidden relative">
                        <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -131,7 +135,7 @@ export const Home: React.FC<HomeProps> = ({ products, categories }) => {
                     </div>
                   </div>
                   <span className="text-xs font-bold text-stone-700 uppercase tracking-wide">{cat.name}</span>
-                </div>
+                </button>
               ))}
             </div>
           </section>

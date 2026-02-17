@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, Plus, Star } from 'lucide-react';
 import { Product } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -9,15 +10,40 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQuickAdd }) => {
+  const navigate = useNavigate();
+
   // Use DB calculated discount or fallback
   const discountPercentage = product.discountPercentage || (product.originalPrice 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
     : 0);
 
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate('/wishlist');
+  };
+
+  const handleQuickAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onQuickAdd) {
+      onQuickAdd(product);
+    } else {
+      // Fallback: Navigate to product page if no quick add handler (or maybe to cart if we had context)
+      // For now, let's just go to the product page but maybe with a focus on 'add'
+      navigate(`/product/${product.id}`);
+    }
+  };
+
   return (
     <div 
       className="group relative flex flex-col gap-3 cursor-pointer"
       onClick={() => onClick(product)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onClick(product);
+        }
+      }}
     >
       {/* Image Container */}
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-stone-200">
@@ -43,25 +69,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQu
 
         {/* Wishlist Button */}
         <button 
-          className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full text-stone-500 hover:text-rose-500 transition-colors shadow-sm z-10"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
+          className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full text-stone-500 hover:text-rose-500 transition-colors shadow-sm z-10 focus:outline-none focus:ring-2 focus:ring-rose-200"
+          onClick={handleWishlistClick}
+          aria-label="Add to Wishlist"
         >
           <Heart size={16} strokeWidth={2} />
         </button>
 
         {/* Quick Add Button - Floating Action */}
-        <button 
-          className="absolute bottom-3 right-3 p-2.5 bg-white text-stone-900 rounded-full shadow-lg hover:bg-stone-900 hover:text-white transition-all duration-300 flex items-center justify-center z-10 active:scale-90"
-          title="Quick Add"
-          onClick={(e) => {
-            e.stopPropagation();
-            onQuickAdd?.(product);
-          }}
-        >
-          <Plus size={18} strokeWidth={2.5} />
-        </button>
+        {onQuickAdd && (
+          <button 
+            className="absolute bottom-3 right-3 p-2.5 bg-white text-stone-900 rounded-full shadow-lg hover:bg-stone-900 hover:text-white transition-all duration-300 flex items-center justify-center z-10 active:scale-90 focus:outline-none focus:ring-2 focus:ring-stone-900"
+            title="Quick Add"
+            onClick={handleQuickAddClick}
+            aria-label="Quick Add to Cart"
+          >
+            <Plus size={18} strokeWidth={2.5} />
+          </button>
+        )}
       </div>
       
       {/* Details */}

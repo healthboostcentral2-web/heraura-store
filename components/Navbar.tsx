@@ -40,39 +40,44 @@ export const Navbar: React.FC<NavbarProps> = ({
           {isHome ? (
             <button 
                 onClick={() => setIsMenuOpen(true)}
-                className="p-2 -ml-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors"
+                className="p-2 -ml-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors focus:outline-none focus:ring-2 focus:ring-stone-200"
+                aria-label="Open Menu"
             >
                <Menu size={24} strokeWidth={1.5} />
             </button>
           ) : (
             <button 
               onClick={() => navigate(-1)}
-              className="p-2 -ml-2 text-stone-600 hover:text-stone-900"
+              className="p-2 -ml-2 text-stone-600 hover:text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-200 rounded-full"
+              aria-label="Go Back"
             >
               <span className="font-serif italic">Back</span>
             </button>
           )}
         </div>
 
-        <div 
-          className="absolute left-1/2 -translate-x-1/2 cursor-pointer" 
+        <button 
+          className="absolute left-1/2 -translate-x-1/2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-stone-200 rounded-lg px-2" 
           onClick={() => navigate('/')}
+          aria-label="Go to Home"
         >
           <h1 className="font-serif text-2xl font-semibold text-stone-900 tracking-tight">
             HerAura
           </h1>
-        </div>
+        </button>
 
         <div className="flex items-center gap-2">
           <button 
             onClick={() => navigate('/search')}
-            className="p-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors"
+            className="p-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors focus:outline-none focus:ring-2 focus:ring-stone-200"
+            aria-label="Search"
           >
             <Search size={24} strokeWidth={1.5} />
           </button>
           <button 
             onClick={() => navigate('/cart')}
-            className="p-2 text-stone-600 hover:text-stone-900 relative rounded-full hover:bg-stone-100 transition-colors"
+            className="p-2 text-stone-600 hover:text-stone-900 relative rounded-full hover:bg-stone-100 transition-colors focus:outline-none focus:ring-2 focus:ring-stone-200"
+            aria-label="Cart"
           >
             <ShoppingBag size={24} strokeWidth={1.5} />
             {cartCount > 0 && (
@@ -96,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className={`absolute top-0 left-0 h-full w-[80%] max-w-sm bg-stone-50 shadow-2xl transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-auto flex flex-col ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
               <div className="p-6 flex justify-between items-center border-b border-stone-100">
                   <h2 className="font-serif text-2xl font-bold text-stone-900">HerAura</h2>
-                  <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-stone-400 hover:text-stone-900">
+                  <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-stone-400 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors" aria-label="Close Menu">
                       <X size={24} />
                   </button>
               </div>
@@ -134,15 +139,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                                   <span className="text-sm font-bold text-stone-700">{cat.name}</span>
                               </button>
                           ))}
+                          <button 
+                             onClick={() => handleNavigateAndClose('/categories')}
+                             className="bg-stone-100 p-3 rounded-xl border border-stone-100 shadow-sm text-center hover:bg-stone-200 transition-colors"
+                          >
+                             <span className="text-sm font-bold text-stone-500">View All</span>
+                          </button>
                       </div>
                   </div>
               </div>
 
               <div className="p-6 border-t border-stone-100 bg-white">
-                   <button onClick={() => handleNavigateAndClose('/profile')} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors mb-4">
+                   <button onClick={() => handleNavigateAndClose('/profile')} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors mb-4 w-full p-2 hover:bg-stone-50 rounded-lg">
                        <User size={20} /> My Profile
                    </button>
-                   <button onClick={() => handleNavigateAndClose('/wishlist')} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors">
+                   <button onClick={() => handleNavigateAndClose('/wishlist')} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors w-full p-2 hover:bg-stone-50 rounded-lg">
                        <Heart size={20} /> My Wishlist
                    </button>
               </div>

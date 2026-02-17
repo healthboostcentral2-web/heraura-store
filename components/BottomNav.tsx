@@ -27,6 +27,7 @@ export const BottomNav: React.FC = () => {
               className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all w-16 ${
                 isActive ? 'text-rose-900' : 'text-stone-400 hover:text-stone-600'
               }`}
+              aria-label={item.label}
             >
               <item.icon 
                 size={24} 
