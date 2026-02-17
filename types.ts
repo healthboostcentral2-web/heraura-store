@@ -9,6 +9,8 @@ export enum View {
   ORDER_TRACKING = 'ORDER_TRACKING',
   ADMIN = 'ADMIN',
   ORDER_SUCCESS = 'ORDER_SUCCESS',
+  WISHLIST = 'WISHLIST',
+  SEARCH = 'SEARCH',
 }
 
 export interface ProductColor {

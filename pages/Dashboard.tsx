@@ -10,7 +10,7 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const MENU_ITEMS = [
     { icon: Package, label: 'My Orders', desc: 'Track, return, or buy things again', action: () => onNavigate(View.ORDER_TRACKING) },
-    { icon: Heart, label: 'Wishlist', desc: 'Your favorite items saved for later', action: () => {} },
+    { icon: Heart, label: 'Wishlist', desc: 'Your favorite items saved for later', action: () => onNavigate(View.WISHLIST) },
     { icon: MapPin, label: 'Addresses', desc: 'Manage your shipping addresses', action: () => {} },
     { icon: Settings, label: 'Settings', desc: 'Notifications, password, and preferences', action: () => {} },
   ];

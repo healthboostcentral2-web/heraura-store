@@ -11,8 +11,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate })
   const navItems = [
     { icon: Home, label: 'Home', view: View.HOME },
     { icon: Grid, label: 'Shop', view: View.CATEGORY },
-    { icon: Heart, label: 'Wishlist', view: View.HOME }, // Mock link
-    { icon: User, label: 'Profile', view: View.HOME }, // Mock link
+    { icon: Heart, label: 'Wishlist', view: View.WISHLIST }, 
+    { icon: User, label: 'Profile', view: View.DASHBOARD }, 
   ];
 
   return (

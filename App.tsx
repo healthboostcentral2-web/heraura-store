@@ -17,6 +17,8 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard').then(module => ({
 const OrderTracking = React.lazy(() => import('./pages/OrderTracking').then(module => ({ default: module.OrderTracking })));
 const OrderSuccess = React.lazy(() => import('./pages/OrderSuccess').then(module => ({ default: module.OrderSuccess })));
 const Admin = React.lazy(() => import('./pages/Admin').then(module => ({ default: module.Admin })));
+const Wishlist = React.lazy(() => import('./pages/Wishlist').then(module => ({ default: module.Wishlist })));
+const Search = React.lazy(() => import('./pages/Search').then(module => ({ default: module.Search })));
 
 const LoadingScreen = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 gap-4">
@@ -58,6 +60,8 @@ const App: React.FC = () => {
       else if (path === '/tracking') setCurrentView(View.ORDER_TRACKING);
       else if (path === '/admin') setCurrentView(View.ADMIN);
       else if (path === '/category') setCurrentView(View.CATEGORY);
+      else if (path === '/wishlist') setCurrentView(View.WISHLIST);
+      else if (path === '/search') setCurrentView(View.SEARCH);
       else if (path === '/success') setCurrentView(View.ORDER_SUCCESS);
       else if (path.startsWith('/product/')) {
           const id = path.split('/')[2];
@@ -103,6 +107,8 @@ const App: React.FC = () => {
         case View.DASHBOARD: path = '/dashboard'; break;
         case View.ORDER_TRACKING: path = '/tracking'; break;
         case View.ADMIN: path = '/admin'; break;
+        case View.WISHLIST: path = '/wishlist'; break;
+        case View.SEARCH: path = '/search'; break;
         case View.ORDER_SUCCESS: path = '/success'; break;
     }
     
@@ -222,6 +228,10 @@ const App: React.FC = () => {
         return <OrderTracking onNavigate={handleNavigate} />;
       case View.ADMIN:
         return <Admin onNavigate={handleNavigate} onDataChange={fetchData} />;
+      case View.WISHLIST:
+        return <Wishlist onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} />;
+      case View.SEARCH:
+        return <Search onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} />;
       default:
         return <Home onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} categories={categories} />;
     }
@@ -240,9 +250,12 @@ const App: React.FC = () => {
       <div className="w-full max-w-md bg-stone-50 min-h-screen shadow-2xl relative overflow-hidden">
         {currentView !== View.LOGIN && currentView !== View.ADMIN && currentView !== View.ORDER_SUCCESS && (
             <Navbar 
-            currentView={currentView} 
-            onNavigate={handleNavigate} 
-            cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
+                currentView={currentView} 
+                onNavigate={handleNavigate} 
+                cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
+                products={products}
+                categories={categories}
+                onProductClick={handleProductClick}
             />
         )}
         <main className="relative z-0">

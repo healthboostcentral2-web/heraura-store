@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { Button } from '../components/Button';
 import { Product, Category } from '../types';
-import { SlidersHorizontal, ChevronRight, Search, X, History, TrendingUp, Check } from 'lucide-react';
-import { SIZES, COLORS } from '../constants';
+import { SlidersHorizontal, ChevronRight, Search, X, Check, FilterX } from 'lucide-react';
+import { COLORS } from '../constants';
 import { SEO } from '../components/SEO';
 
 interface CategoryProps {
@@ -20,7 +20,6 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
   const [searchQuery, setSearchQuery] = useState('');
 
   // Mock Filter States
-  const [priceRange, setPriceRange] = useState([50, 350]);
   const [selectedFilters, setSelectedFilters] = useState<{
     colors: string[];
     sizes: string[];
@@ -45,12 +44,12 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
   const currentCategoryData = categories.find(c => c.name === selectedCategory);
   const subcategories = currentCategoryData ? ['All', ...currentCategoryData.subcategories] : [];
 
-  const filteredProducts = selectedCategory === 'All' 
-    ? products 
-    : products.filter(p => p.category === selectedCategory);
-
-  const OCCASIONS = ['Casual', 'Party', 'Wedding', 'Office', 'Vacation', 'Formal'];
-  const FABRICS = ['Cotton', 'Silk', 'Georgette', 'Linen', 'Velvet', 'Chiffon'];
+  const filteredProducts = products.filter(p => {
+    if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
+    if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    // Add more real filtering logic here if needed
+    return true;
+  });
 
   return (
     <div className="pb-24 pt-2 min-h-screen bg-stone-50 animate-fade-in relative">
@@ -65,7 +64,7 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search dresses, tops..." 
+                    placeholder="Filter current view..." 
                     className="w-full bg-white border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-200 transition-all placeholder:text-stone-400"
                     onFocus={() => setIsSearchActive(true)}
                 />
@@ -117,7 +116,7 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
         </div>
 
         {/* Subcategories */}
-        {selectedCategory !== 'All' && (
+        {selectedCategory !== 'All' && subcategories.length > 0 && (
           <div className="flex gap-2 overflow-x-auto no-scrollbar px-6 pb-4 animate-fade-in border-t border-stone-100 pt-3 bg-stone-50">
              {subcategories.map((sub) => (
               <button
@@ -135,35 +134,6 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
           </div>
         )}
       </div>
-
-      {/* Search Suggestions Overlay */}
-      {isSearchActive && (
-        <div className="fixed inset-0 z-30 top-[140px] bg-white/95 backdrop-blur-xl animate-fade-in">
-             <div className="p-6 space-y-8 h-full overflow-y-auto pb-32">
-                 {/* ... Search suggestions logic (same as before) ... */}
-                 <div>
-                    <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-3">Popular Products</h3>
-                    <div className="space-y-3">
-                         {products.slice(0, 3).map(p => (
-                             <div key={p.id} className="flex items-center gap-3 p-2 hover:bg-stone-50 rounded-xl cursor-pointer" onClick={() => onProductClick(p)}>
-                                 {p.images && p.images.length > 0 ? (
-                                     <img src={p.images[0]} className="w-12 h-12 rounded-lg object-cover" alt={p.name} />
-                                 ) : (
-                                     <div className="w-12 h-12 rounded-lg bg-stone-200"></div>
-                                 )}
-                                 <div>
-                                     <p className="text-sm font-bold text-stone-900">{p.name}</p>
-                                     <p className="text-xs text-stone-500">${p.price}</p>
-                                 </div>
-                             </div>
-                         ))}
-                    </div>
-                 </div>
-                 
-                 <Button variant="ghost" fullWidth onClick={() => setIsSearchActive(false)}>Close Search</Button>
-             </div>
-        </div>
-      )}
 
       {/* Filter Drawer Overlay */}
       <div className={`fixed inset-0 z-[60] ${showFilters ? 'pointer-events-auto' : 'pointer-events-none'}`}>
@@ -183,7 +153,6 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
 
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                    {/* ... Same filter sections using generic SIZES/COLORS constants ... */}
                     {/* Colors */}
                     <section>
                         <h4 className="font-bold text-stone-900 mb-4">Color</h4>
@@ -224,7 +193,7 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
 
       {/* Product List Content */}
       <div className="px-6 mt-6">
-        {selectedCategory !== 'All' && !isSearchActive && (
+        {selectedCategory !== 'All' && !isSearchActive && filteredProducts.length > 0 && (
             <div className="mb-6 bg-white p-4 rounded-2xl border border-stone-100 flex items-center gap-4 animate-fade-in">
                 {currentCategoryData?.image ? (
                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-stone-200 flex-shrink-0">
@@ -246,21 +215,38 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
             <>
                 <div className="flex items-center justify-between mb-4">
                     <p className="text-stone-500 text-sm">{filteredProducts.length} items found</p>
-                    <div className="flex items-center gap-1 text-xs font-bold text-stone-900 cursor-pointer">
-                        <span>Sort by: Newest</span>
-                        <ChevronRight size={14} className="rotate-90" />
-                    </div>
+                    {filteredProducts.length > 0 && (
+                      <div className="flex items-center gap-1 text-xs font-bold text-stone-900 cursor-pointer">
+                          <span>Sort by: Newest</span>
+                          <ChevronRight size={14} className="rotate-90" />
+                      </div>
+                    )}
                 </div>
                 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-8">
-                {filteredProducts.map(product => (
-                    <ProductCard 
-                    key={product.id} 
-                    product={product} 
-                    onClick={onProductClick}
-                    />
-                ))}
-                </div>
+                {filteredProducts.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-8">
+                    {filteredProducts.map(product => (
+                        <ProductCard 
+                        key={product.id} 
+                        product={product} 
+                        onClick={onProductClick}
+                        />
+                    ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in border-2 border-dashed border-stone-100 rounded-3xl">
+                        <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mb-4">
+                            <FilterX size={24} className="text-stone-400" />
+                        </div>
+                        <h3 className="font-serif text-xl text-stone-900 mb-2">No Items Found</h3>
+                        <p className="text-stone-500 text-sm max-w-xs mx-auto mb-6">
+                            Try adjusting your filters or category selection to find what you're looking for.
+                        </p>
+                        <Button variant="secondary" onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}>
+                            Clear Filters
+                        </Button>
+                    </div>
+                )}
             </>
         )}
       </div>
