@@ -18,6 +18,7 @@ const netlifyRedirect = () => ({
 });
 
 export default defineConfig({
+  base: "/",
   plugins: [react(), netlifyRedirect()],
   publicDir: 'public',
   server: {
@@ -25,6 +26,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
     sourcemap: false
   }
 });
