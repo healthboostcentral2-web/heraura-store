@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, Order } from '../types';
+import { Order } from '../types';
 import { Button } from '../components/Button';
-import { CheckCircle, Package, ArrowRight, Home } from 'lucide-react';
+import { CheckCircle, Package, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface OrderSuccessProps {
   order: Order | null;
-  onNavigate: (view: View) => void;
 }
 
-export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order, onNavigate }) => {
+export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order }) => {
+  const navigate = useNavigate();
+
   if (!order) return null;
 
   return (
@@ -56,10 +58,10 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order, onNavigate })
       </div>
 
       <div className="w-full max-w-sm space-y-3">
-        <Button fullWidth onClick={() => onNavigate(View.ORDER_TRACKING)}>
+        <Button fullWidth onClick={() => navigate('/tracking')}>
           Track Order
         </Button>
-        <Button variant="ghost" fullWidth onClick={() => onNavigate(View.HOME)}>
+        <Button variant="ghost" fullWidth onClick={() => navigate('/')}>
           <Home size={18} className="mr-2 inline" />
           Continue Shopping
         </Button>

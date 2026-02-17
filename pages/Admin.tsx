@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Product, Order } from '../types';
+import { Product, Order } from '../types';
 import { Button } from '../components/Button';
 import { db } from '../lib/db';
-import { ArrowLeft, Plus, Trash2, Edit2, Package, ShoppingBag, TrendingUp, DollarSign, Search, X, Check, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit2, Package, ShoppingBag, DollarSign, X, ChevronDown } from 'lucide-react';
 import { COLORS, SIZES, SEED_CATEGORIES } from '../constants';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminProps {
-  onNavigate: (view: View) => void;
   onDataChange: () => void;
 }
 
 type Tab = 'DASHBOARD' | 'PRODUCTS' | 'ORDERS';
 
-export const Admin: React.FC<AdminProps> = ({ onNavigate, onDataChange }) => {
+export const Admin: React.FC<AdminProps> = ({ onDataChange }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('DASHBOARD');
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -93,7 +94,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate, onDataChange }) => {
             <div className="flex justify-between items-center mb-6 pt-4">
                 <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => onNavigate(View.HOME)}
+                        onClick={() => navigate('/')}
                         className="p-2 -ml-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
                     >
                         <ArrowLeft size={20} />

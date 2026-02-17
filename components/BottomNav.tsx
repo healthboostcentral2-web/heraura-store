@@ -1,29 +1,29 @@
 import React from 'react';
 import { Home, Grid, Heart, User } from 'lucide-react';
-import { View } from '../types';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-interface BottomNavProps {
-  currentView: View;
-  onNavigate: (view: View) => void;
-}
+export const BottomNav: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate }) => {
   const navItems = [
-    { icon: Home, label: 'Home', view: View.HOME },
-    { icon: Grid, label: 'Shop', view: View.CATEGORY },
-    { icon: Heart, label: 'Wishlist', view: View.WISHLIST }, 
-    { icon: User, label: 'Profile', view: View.DASHBOARD }, 
+    { icon: Home, label: 'Home', path: '/' },
+    { icon: Grid, label: 'Shop', path: '/categories' },
+    { icon: Heart, label: 'Wishlist', path: '/wishlist' }, 
+    { icon: User, label: 'Profile', path: '/profile' }, 
   ];
 
   return (
     <div className="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 z-50 bg-white border-t border-stone-100 pb-safe">
       <div className="flex justify-around items-center px-2 py-3">
         {navItems.map((item) => {
-          const isActive = currentView === item.view || (currentView === View.PRODUCT && item.view === View.CATEGORY);
+          // Check for active state: exact match or sub-paths for Shop
+          const isActive = location.pathname === item.path || (item.path === '/categories' && location.pathname.startsWith('/categories'));
+          
           return (
             <button
               key={item.label}
-              onClick={() => onNavigate(item.view)}
+              onClick={() => navigate(item.path)}
               className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all w-16 ${
                 isActive ? 'text-rose-900' : 'text-stone-400 hover:text-stone-600'
               }`}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
-import { View, Product, CartItem, Category, Order } from './types';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Product, CartItem, Category, Order } from './types';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { db } from './lib/db';
@@ -28,8 +29,8 @@ const LoadingScreen = () => (
 );
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<View>(View.HOME);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
   
   // Data State
@@ -50,28 +51,6 @@ const App: React.FC = () => {
       setProducts(fetchedProducts || []);
       setCategories(fetchedCategories || []);
       setCart(db.getCart() || []);
-
-      // Initial URL Routing Logic
-      const path = window.location.pathname;
-      if (path === '/cart') setCurrentView(View.CART);
-      else if (path === '/checkout') setCurrentView(View.CHECKOUT);
-      else if (path === '/login') setCurrentView(View.LOGIN);
-      else if (path === '/dashboard') setCurrentView(View.DASHBOARD);
-      else if (path === '/tracking') setCurrentView(View.ORDER_TRACKING);
-      else if (path === '/admin') setCurrentView(View.ADMIN);
-      else if (path === '/category') setCurrentView(View.CATEGORY);
-      else if (path === '/wishlist') setCurrentView(View.WISHLIST);
-      else if (path === '/search') setCurrentView(View.SEARCH);
-      else if (path === '/success') setCurrentView(View.ORDER_SUCCESS);
-      else if (path.startsWith('/product/')) {
-          const id = path.split('/')[2];
-          const product = (fetchedProducts || []).find((p: Product) => p.id === id);
-          if (product) {
-              setSelectedProduct(product);
-              setCurrentView(View.PRODUCT);
-          }
-      }
-
     } catch (err) {
       console.error("Failed to fetch data:", err);
       setError("Unable to load application data. Please check your connection.");
@@ -85,45 +64,12 @@ const App: React.FC = () => {
         setIsLoading(false);
     }
     init();
-    
-    // Simple Popstate Handler for Browser Back Button (Reloads to sync state)
-    const handlePopState = () => window.location.reload();
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
   }, [fetchData]);
 
-  const handleNavigate = (view: View) => {
+  // Scroll to top on route change
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setCurrentView(view);
-    
-    // Update URL
-    let path = '/';
-    switch (view) {
-        case View.HOME: path = '/'; break;
-        case View.CATEGORY: path = '/category'; break;
-        case View.CART: path = '/cart'; break;
-        case View.CHECKOUT: path = '/checkout'; break;
-        case View.LOGIN: path = '/login'; break;
-        case View.DASHBOARD: path = '/dashboard'; break;
-        case View.ORDER_TRACKING: path = '/tracking'; break;
-        case View.ADMIN: path = '/admin'; break;
-        case View.WISHLIST: path = '/wishlist'; break;
-        case View.SEARCH: path = '/search'; break;
-        case View.ORDER_SUCCESS: path = '/success'; break;
-    }
-    
-    // Only push state if we aren't already there (and not Product view which is handled separately)
-    if (view !== View.PRODUCT && window.location.pathname !== path) {
-        window.history.pushState({}, '', path);
-    }
-  };
-
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    window.history.pushState({}, '', `/product/${product.id}`);
-    setCurrentView(View.PRODUCT);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [location.pathname]);
 
   const handleAddToCart = async (newItem: CartItem) => {
     const existingItemIndex = cart.findIndex(
@@ -169,7 +115,7 @@ const App: React.FC = () => {
   const handleOrderComplete = (order: Order) => {
     setLastOrder(order);
     setCart([]);
-    handleNavigate(View.ORDER_SUCCESS);
+    navigate('/success');
   };
 
   if (isLoading) {
@@ -191,80 +137,45 @@ const App: React.FC = () => {
       );
   }
 
-  const renderView = () => {
-    switch (currentView) {
-      case View.HOME:
-        return <Home onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} categories={categories} />;
-      case View.CATEGORY:
-        return <CategoryPage onProductClick={handleProductClick} products={products} categories={categories} />;
-      case View.PRODUCT:
-        return (
-          <ProductDetail 
-            product={selectedProduct} 
-            onAddToCart={handleAddToCart}
-            onNavigate={handleNavigate}
-            allProducts={products}
-            onProductClick={handleProductClick}
-          />
-        );
-      case View.CART:
-        return (
-          <Cart 
-            cart={cart} 
-            onNavigate={handleNavigate} 
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemoveItem={handleRemoveItem}
-          />
-        );
-      case View.CHECKOUT:
-        return <Checkout onNavigate={handleNavigate} onOrderComplete={handleOrderComplete} />;
-      case View.ORDER_SUCCESS:
-        return <OrderSuccess order={lastOrder} onNavigate={handleNavigate} />;
-      case View.LOGIN:
-        return <Login onNavigate={handleNavigate} />;
-      case View.DASHBOARD:
-        return <Dashboard onNavigate={handleNavigate} />;
-      case View.ORDER_TRACKING:
-        return <OrderTracking onNavigate={handleNavigate} />;
-      case View.ADMIN:
-        return <Admin onNavigate={handleNavigate} onDataChange={fetchData} />;
-      case View.WISHLIST:
-        return <Wishlist onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} />;
-      case View.SEARCH:
-        return <Search onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} />;
-      default:
-        return <Home onNavigate={handleNavigate} onProductClick={handleProductClick} products={products} categories={categories} />;
-    }
-  };
-
   const hideBottomNav = 
-    currentView === View.PRODUCT || 
-    currentView === View.CART || 
-    currentView === View.CHECKOUT || 
-    currentView === View.ORDER_SUCCESS ||
-    currentView === View.LOGIN || 
-    currentView === View.ADMIN;
+    location.pathname.startsWith('/product/') || 
+    location.pathname === '/cart' || 
+    location.pathname === '/checkout' || 
+    location.pathname === '/success' ||
+    location.pathname === '/login' || 
+    location.pathname === '/admin';
 
   return (
     <div className="min-h-screen bg-stone-100 font-sans flex justify-center">
       <div className="w-full max-w-md bg-stone-50 min-h-screen shadow-2xl relative overflow-hidden">
-        {currentView !== View.LOGIN && currentView !== View.ADMIN && currentView !== View.ORDER_SUCCESS && (
+        {location.pathname !== '/login' && location.pathname !== '/admin' && location.pathname !== '/success' && (
             <Navbar 
-                currentView={currentView} 
-                onNavigate={handleNavigate} 
                 cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
                 products={products}
                 categories={categories}
-                onProductClick={handleProductClick}
             />
         )}
         <main className="relative z-0">
           <Suspense fallback={<LoadingScreen />}>
-             {renderView()}
+             <Routes>
+                <Route path="/" element={<Home products={products} categories={categories} />} />
+                <Route path="/categories" element={<CategoryPage products={products} categories={categories} />} />
+                <Route path="/product/:id" element={<ProductDetail allProducts={products} onAddToCart={handleAddToCart} />} />
+                <Route path="/cart" element={<Cart cart={cart} onUpdateQuantity={handleUpdateQuantity} onRemoveItem={handleRemoveItem} />} />
+                <Route path="/checkout" element={<Checkout onOrderComplete={handleOrderComplete} />} />
+                <Route path="/success" element={<OrderSuccess order={lastOrder} />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Dashboard />} />
+                <Route path="/tracking" element={<OrderTracking />} />
+                <Route path="/admin" element={<Admin onDataChange={fetchData} />} />
+                <Route path="/wishlist" element={<Wishlist products={products} />} />
+                <Route path="/search" element={<Search products={products} />} />
+                <Route path="*" element={<Home products={products} categories={categories} />} />
+             </Routes>
           </Suspense>
         </main>
         {!hideBottomNav && (
-          <BottomNav currentView={currentView} onNavigate={handleNavigate} />
+          <BottomNav />
         )}
       </div>
     </div>

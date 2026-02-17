@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Product, View, CartItem } from '../types';
+import { Product, CartItem } from '../types';
 import { Button } from '../components/Button';
 import { ProductCard } from '../components/ProductCard';
 import { Star, Minus, Plus, Share2, Heart, ShieldCheck, Truck, Ruler, ChevronRight, MessageCircle, Bell, Search } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface ProductDetailProps {
-  product: Product | null;
   onAddToCart: (item: CartItem) => void;
-  onNavigate: (view: View) => void;
   allProducts: Product[];
-  onProductClick: (product: Product) => void;
 }
 
-export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCart, onNavigate, allProducts, onProductClick }) => {
+export const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, allProducts }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const product = allProducts.find(p => p.id === id) || null;
+
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
@@ -37,7 +39,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
             </div>
             <h2 className="font-serif text-2xl text-stone-900 mb-2">Product Not Found</h2>
             <p className="text-stone-500 mb-8 max-w-xs mx-auto">The item you are looking for might have been removed or is currently unavailable.</p>
-            <Button onClick={() => onNavigate(View.HOME)}>
+            <Button onClick={() => navigate('/')}>
                 Return to Shop
             </Button>
         </div>
@@ -64,7 +66,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
     };
     
     onAddToCart(cartItem);
-    onNavigate(View.CART);
+    navigate('/cart');
+  };
+
+  const handleProductClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -107,7 +114,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
             {/* Back Button Overlay */}
             <div className="absolute top-4 left-4 z-10">
                  <button 
-                    onClick={() => onNavigate(View.HOME)}
+                    onClick={() => navigate(-1)}
                     className="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-lg text-stone-600 hover:text-stone-900 transition-all active:scale-90"
                  >
                     <ChevronRight size={20} className="rotate-180" />
@@ -283,7 +290,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
                                     <div className="w-full h-full bg-stone-200 flex items-center justify-center text-xs text-stone-400">No Image</div>
                                 )}
                                 <button 
-                                    onClick={() => onProductClick(item)}
+                                    onClick={() => handleProductClick(item)}
                                     className="absolute bottom-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-stone-900 hover:bg-stone-900 hover:text-white transition-colors"
                                 >
                                     <Plus size={14} />
@@ -341,10 +348,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
                         <ProductCard 
                             key={p.id} 
                             product={p} 
-                            onClick={(product) => {
-                                onProductClick(product);
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
+                            onClick={handleProductClick}
                         />
                     ))}
                 </div>

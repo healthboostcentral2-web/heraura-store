@@ -1,17 +1,18 @@
 import React from 'react';
-import { View, CartItem } from '../types';
+import { CartItem } from '../types';
 import { Button } from '../components/Button';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Tag } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useNavigate } from 'react-router-dom';
 
 interface CartProps {
   cart: CartItem[];
-  onNavigate: (view: View) => void;
   onUpdateQuantity: (id: string, delta: number) => void;
   onRemoveItem: (id: string) => void;
 }
 
-export const Cart: React.FC<CartProps> = ({ cart, onNavigate, onUpdateQuantity, onRemoveItem }) => {
+export const Cart: React.FC<CartProps> = ({ cart, onUpdateQuantity, onRemoveItem }) => {
+  const navigate = useNavigate();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const shipping = subtotal > 200 ? 0 : 15.00;
   const total = subtotal + shipping;
@@ -25,7 +26,7 @@ export const Cart: React.FC<CartProps> = ({ cart, onNavigate, onUpdateQuantity, 
         </div>
         <h2 className="font-serif text-2xl text-stone-900 mb-2">Your Bag is Empty</h2>
         <p className="text-sm text-stone-500 mb-8 text-center max-w-xs">Looks like you haven't found your perfect match yet.</p>
-        <Button variant="primary" onClick={() => onNavigate(View.CATEGORY)}>Start Shopping</Button>
+        <Button variant="primary" onClick={() => navigate('/categories')}>Start Shopping</Button>
       </div>
     );
   }
@@ -136,7 +137,7 @@ export const Cart: React.FC<CartProps> = ({ cart, onNavigate, onUpdateQuantity, 
 
       <div className="fixed bottom-0 left-0 w-full bg-white border-t border-stone-100 p-6 pb-safe z-40 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
         <div className="max-w-md mx-auto">
-            <Button fullWidth onClick={() => onNavigate(View.CHECKOUT)}>
+            <Button fullWidth onClick={() => navigate('/checkout')}>
                 Proceed to Checkout <ArrowRight size={16} className="inline ml-2" />
             </Button>
         </div>

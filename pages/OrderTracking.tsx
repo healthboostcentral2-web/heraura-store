@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Order } from '../types';
+import { Order } from '../types';
 import { ArrowLeft, Check, Truck, Package, Home, Search } from 'lucide-react';
 import { db } from '../lib/db';
+import { useNavigate } from 'react-router-dom';
 
-interface OrderTrackingProps {
-  onNavigate: (view: View) => void;
-}
-
-export const OrderTracking: React.FC<OrderTrackingProps> = ({ onNavigate }) => {
+export const OrderTracking: React.FC = () => {
+  const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +35,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ onNavigate }) => {
             <h2 className="font-serif text-xl text-stone-900 mb-2">No Active Orders</h2>
             <p className="text-stone-500 text-sm mb-6">You haven't placed any orders yet.</p>
             <button 
-                onClick={() => onNavigate(View.HOME)}
+                onClick={() => navigate('/')}
                 className="text-rose-600 font-bold hover:underline"
             >
                 Start Shopping
@@ -59,7 +57,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ onNavigate }) => {
        {/* Header */}
        <div className="bg-white px-6 pt-safe py-4 shadow-sm border-b border-stone-100 flex items-center gap-4 sticky top-0 z-20">
           <button 
-            onClick={() => onNavigate(View.DASHBOARD)}
+            onClick={() => navigate('/profile')}
             className="p-2 -ml-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100"
           >
             <ArrowLeft size={20} />

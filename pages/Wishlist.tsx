@@ -1,19 +1,23 @@
 import React from 'react';
-import { View, Product } from '../types';
+import { Product } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { Button } from '../components/Button';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useNavigate } from 'react-router-dom';
 
 interface WishlistProps {
-  onNavigate: (view: View) => void;
-  onProductClick: (product: Product) => void;
   products: Product[];
 }
 
-export const Wishlist: React.FC<WishlistProps> = ({ onNavigate, onProductClick, products }) => {
+export const Wishlist: React.FC<WishlistProps> = ({ products }) => {
+  const navigate = useNavigate();
   // Mock wishlist items (take first 3 available products for visual demo)
   const wishlistItems = products.length > 0 ? [products[0], products[2], products[3]].filter(Boolean) : [];
+
+  const handleProductClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
+  };
 
   if (wishlistItems.length === 0) {
     return (
@@ -24,7 +28,7 @@ export const Wishlist: React.FC<WishlistProps> = ({ onNavigate, onProductClick, 
         </div>
         <h2 className="font-serif text-2xl text-stone-900 mb-2">Your Wishlist is Empty</h2>
         <p className="text-sm text-stone-500 mb-8 text-center max-w-xs">Save your favorite styles to track them here.</p>
-        <Button variant="primary" onClick={() => onNavigate(View.CATEGORY)}>Explore Collection</Button>
+        <Button variant="primary" onClick={() => navigate('/categories')}>Explore Collection</Button>
       </div>
     );
   }
@@ -42,7 +46,7 @@ export const Wishlist: React.FC<WishlistProps> = ({ onNavigate, onProductClick, 
             <ProductCard 
                 key={product.id} 
                 product={product} 
-                onClick={onProductClick}
+                onClick={handleProductClick}
             />
         ))}
       </div>

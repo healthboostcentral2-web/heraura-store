@@ -1,19 +1,17 @@
 import React from 'react';
-import { View } from '../types';
 import { Button } from '../components/Button';
-import { ArrowLeft, Mail, Lock, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Mail, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginProps {
-  onNavigate: (view: View) => void;
-}
+export const Login: React.FC = () => {
+  const navigate = useNavigate();
 
-export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   return (
     <div className="min-h-screen bg-stone-50 animate-fade-in relative flex flex-col">
       {/* Header */}
       <div className="absolute top-0 left-0 w-full p-6 z-10">
         <button 
-          onClick={() => onNavigate(View.HOME)}
+          onClick={() => navigate('/')}
           className="p-2 -ml-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100"
         >
           <ArrowLeft size={24} />
@@ -54,7 +52,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 </div>
             </div>
 
-            <Button fullWidth onClick={() => onNavigate(View.DASHBOARD)}>
+            <Button fullWidth onClick={() => navigate('/profile')}>
                 Sign In
             </Button>
         </div>

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { Button } from '../components/Button';
-import { Product, View, Category } from '../types';
-import { ArrowRight, Clock, Star, ShieldCheck, Truck, RefreshCcw, Mail, Eye, ShoppingBag } from 'lucide-react';
+import { Product, Category } from '../types';
+import { ArrowRight, Clock, ShieldCheck, Truck, RefreshCcw, Eye, ShoppingBag } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {
-  onNavigate: (view: View) => void;
-  onProductClick: (product: Product) => void;
   products: Product[];
   categories: Category[];
 }
 
-export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products, categories }) => {
+export const Home: React.FC<HomeProps> = ({ products, categories }) => {
+  const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
 
   useEffect(() => {
@@ -27,6 +27,10 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
     return () => clearInterval(timer);
   }, []);
 
+  const handleProductClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
+  };
+
   // Empty State Handling
   if (products.length === 0) {
     return (
@@ -39,7 +43,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
         <p className="text-stone-500 max-w-sm mb-8">
           We are currently stocking our shelves with the finest fashion. Please check back later for our grand opening.
         </p>
-        <Button onClick={() => onNavigate(View.ADMIN)} variant="outline">
+        <Button onClick={() => navigate('/admin')} variant="outline">
            Access Admin Panel
         </Button>
       </div>
@@ -57,7 +61,6 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
       {/* Hero Slider */}
       <section className="relative h-[600px] w-full overflow-hidden bg-stone-200">
         <div className="absolute inset-0">
-          {/* Use a generic fashion placeholder if available, or just a solid color/gradient if no image provided */}
           <div className="w-full h-full bg-stone-300 flex items-center justify-center">
              <img 
                 src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1000" 
@@ -89,7 +92,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
           </p>
           
           <div className="flex gap-3 pt-2">
-            <Button variant="secondary" onClick={() => onNavigate(View.CATEGORY)}>Shop New In</Button>
+            <Button variant="secondary" onClick={() => navigate('/categories')}>Shop New In</Button>
           </div>
         </div>
       </section>
@@ -120,7 +123,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
             </div>
             <div className="flex gap-6 overflow-x-auto no-scrollbar px-6 pb-2">
               {categories.map(cat => (
-                <div key={cat.id} className="flex-shrink-0 flex flex-col items-center gap-3 group cursor-pointer" onClick={() => onNavigate(View.CATEGORY)}>
+                <div key={cat.id} className="flex-shrink-0 flex flex-col items-center gap-3 group cursor-pointer" onClick={() => navigate('/categories')}>
                   <div className="w-20 h-20 rounded-full p-[2px] border border-rose-200 group-hover:border-rose-400 transition-all">
                     <div className="w-full h-full rounded-full overflow-hidden relative">
                        <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -158,7 +161,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
             </div>
 
             <h3 className="font-serif text-3xl mb-4 leading-tight">Up to 50% Off<br/>Selected Items</h3>
-            <Button variant="secondary" className="w-full shadow-none" onClick={() => onNavigate(View.CATEGORY)}>Shop The Sale</Button>
+            <Button variant="secondary" className="w-full shadow-none" onClick={() => navigate('/categories')}>Shop The Sale</Button>
         </div>
       </section>
 
@@ -167,7 +170,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
           <section className="px-6 mb-12">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-2xl text-stone-900">New Arrivals</h3>
-              <button className="p-2 bg-white border border-stone-200 rounded-full hover:bg-stone-50 transition-colors shadow-sm" onClick={() => onNavigate(View.CATEGORY)}>
+              <button className="p-2 bg-white border border-stone-200 rounded-full hover:bg-stone-50 transition-colors shadow-sm" onClick={() => navigate('/categories')}>
                  <ArrowRight size={18} className="text-stone-600" />
               </button>
             </div>
@@ -176,7 +179,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
                 <ProductCard 
                   key={product.id} 
                   product={product} 
-                  onClick={onProductClick}
+                  onClick={handleProductClick}
                 />
               ))}
             </div>
@@ -193,7 +196,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 px-6">
                 {BEST_SELLERS.map(product => (
                     <div key={product.id} className="w-[160px] flex-shrink-0">
-                        <ProductCard product={product} onClick={onProductClick} />
+                        <ProductCard product={product} onClick={handleProductClick} />
                     </div>
                 ))}
             </div>
@@ -209,7 +212,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onProductClick, products
             </div>
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
                 {RECENTLY_VIEWED.map(product => (
-                     <div key={product.id} className="flex-shrink-0 w-[140px] group cursor-pointer" onClick={() => onProductClick(product)}>
+                     <div key={product.id} className="flex-shrink-0 w-[140px] group cursor-pointer" onClick={() => handleProductClick(product)}>
                         <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-2 bg-stone-100">
                             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         </div>

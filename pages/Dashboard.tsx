@@ -1,16 +1,14 @@
 import React from 'react';
-import { View } from '../types';
 import { Button } from '../components/Button';
 import { ArrowLeft, Package, Heart, MapPin, Settings, LogOut, ChevronRight, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface DashboardProps {
-  onNavigate: (view: View) => void;
-}
+export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
 
-export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const MENU_ITEMS = [
-    { icon: Package, label: 'My Orders', desc: 'Track, return, or buy things again', action: () => onNavigate(View.ORDER_TRACKING) },
-    { icon: Heart, label: 'Wishlist', desc: 'Your favorite items saved for later', action: () => onNavigate(View.WISHLIST) },
+    { icon: Package, label: 'My Orders', desc: 'Track, return, or buy things again', action: () => navigate('/tracking') },
+    { icon: Heart, label: 'Wishlist', desc: 'Your favorite items saved for later', action: () => navigate('/wishlist') },
     { icon: MapPin, label: 'Addresses', desc: 'Manage your shipping addresses', action: () => {} },
     { icon: Settings, label: 'Settings', desc: 'Notifications, password, and preferences', action: () => {} },
   ];
@@ -60,7 +58,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             ))}
             
             <button 
-                onClick={() => onNavigate(View.ADMIN)}
+                onClick={() => navigate('/admin')}
                 className="w-full flex items-center justify-between p-4 bg-stone-900 rounded-2xl shadow-lg group"
             >
                 <div className="flex items-center gap-4">
@@ -79,7 +77,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         {/* Sign Out */}
         <div className="px-6">
             <button 
-                onClick={() => onNavigate(View.HOME)}
+                onClick={() => navigate('/')}
                 className="w-full p-4 flex items-center justify-center gap-2 text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors text-sm font-bold"
             >
                 <LogOut size={18} />

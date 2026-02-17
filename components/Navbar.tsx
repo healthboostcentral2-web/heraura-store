@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Search, Menu, X, ChevronRight, User, Heart, Zap, TrendingUp } from 'lucide-react';
-import { View, Product, Category } from '../types';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Product, Category } from '../types';
 
 interface NavbarProps {
-  currentView: View;
-  onNavigate: (view: View) => void;
   cartCount: number;
   products: Product[];
   categories: Category[];
-  onProductClick: (product: Product) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
-  currentView, 
-  onNavigate, 
   cartCount,
   products = [],
-  categories = [],
-  onProductClick
+  categories = []
 }) => {
-  const isHome = currentView === View.HOME;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Lock body scroll only for menu
@@ -31,8 +28,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   }, [isMenuOpen]);
 
-  const handleNavigateAndClose = (view: View) => {
-    onNavigate(view);
+  const handleNavigateAndClose = (path: string) => {
+    navigate(path);
     setIsMenuOpen(false);
   };
 
@@ -49,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           ) : (
             <button 
-              onClick={() => onNavigate(View.HOME)}
+              onClick={() => navigate(-1)}
               className="p-2 -ml-2 text-stone-600 hover:text-stone-900"
             >
               <span className="font-serif italic">Back</span>
@@ -59,7 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div 
           className="absolute left-1/2 -translate-x-1/2 cursor-pointer" 
-          onClick={() => onNavigate(View.HOME)}
+          onClick={() => navigate('/')}
         >
           <h1 className="font-serif text-2xl font-semibold text-stone-900 tracking-tight">
             HerAura
@@ -68,13 +65,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => onNavigate(View.SEARCH)}
+            onClick={() => navigate('/search')}
             className="p-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors"
           >
             <Search size={24} strokeWidth={1.5} />
           </button>
           <button 
-            onClick={() => onNavigate(View.CART)}
+            onClick={() => navigate('/cart')}
             className="p-2 text-stone-600 hover:text-stone-900 relative rounded-full hover:bg-stone-100 transition-colors"
           >
             <ShoppingBag size={24} strokeWidth={1.5} />
@@ -106,19 +103,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               
               <div className="flex-1 overflow-y-auto py-4">
                   <nav className="px-6 space-y-2">
-                      <button onClick={() => handleNavigateAndClose(View.HOME)} className="w-full text-left py-4 text-lg font-serif text-stone-900 border-b border-stone-100 hover:text-rose-500 transition-colors">
+                      <button onClick={() => handleNavigateAndClose('/')} className="w-full text-left py-4 text-lg font-serif text-stone-900 border-b border-stone-100 hover:text-rose-500 transition-colors">
                           Home
                       </button>
-                      <button onClick={() => handleNavigateAndClose(View.CATEGORY)} className="w-full text-left py-4 text-lg font-serif text-stone-900 border-b border-stone-100 hover:text-rose-500 transition-colors">
+                      <button onClick={() => handleNavigateAndClose('/categories')} className="w-full text-left py-4 text-lg font-serif text-stone-900 border-b border-stone-100 hover:text-rose-500 transition-colors">
                           Shop All Categories
                       </button>
                       
                       {/* Featured Links */}
-                      <button onClick={() => handleNavigateAndClose(View.CATEGORY)} className="w-full flex items-center justify-between py-4 text-stone-600 border-b border-stone-100 group">
+                      <button onClick={() => handleNavigateAndClose('/categories')} className="w-full flex items-center justify-between py-4 text-stone-600 border-b border-stone-100 group">
                           <span className="flex items-center gap-3"><Zap size={18} className="text-stone-400 group-hover:text-rose-500"/> New Arrivals</span>
                           <ChevronRight size={16} className="text-stone-300 group-hover:text-rose-500" />
                       </button>
-                      <button onClick={() => handleNavigateAndClose(View.CATEGORY)} className="w-full flex items-center justify-between py-4 text-stone-600 border-b border-stone-100 group">
+                      <button onClick={() => handleNavigateAndClose('/categories')} className="w-full flex items-center justify-between py-4 text-stone-600 border-b border-stone-100 group">
                           <span className="flex items-center gap-3"><TrendingUp size={18} className="text-stone-400 group-hover:text-rose-500"/> Best Sellers</span>
                           <ChevronRight size={16} className="text-stone-300 group-hover:text-rose-500" />
                       </button>
@@ -131,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           {categories.slice(0, 4).map(cat => (
                               <button 
                                 key={cat.id}
-                                onClick={() => handleNavigateAndClose(View.CATEGORY)}
+                                onClick={() => handleNavigateAndClose('/categories')}
                                 className="bg-white p-3 rounded-xl border border-stone-100 shadow-sm text-center hover:border-rose-200 transition-colors"
                               >
                                   <span className="text-sm font-bold text-stone-700">{cat.name}</span>
@@ -142,10 +139,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
 
               <div className="p-6 border-t border-stone-100 bg-white">
-                   <button onClick={() => handleNavigateAndClose(View.DASHBOARD)} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors mb-4">
+                   <button onClick={() => handleNavigateAndClose('/profile')} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors mb-4">
                        <User size={20} /> My Profile
                    </button>
-                   <button onClick={() => handleNavigateAndClose(View.WISHLIST)} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors">
+                   <button onClick={() => handleNavigateAndClose('/wishlist')} className="flex items-center gap-3 text-stone-900 font-bold hover:text-rose-600 transition-colors">
                        <Heart size={20} /> My Wishlist
                    </button>
               </div>

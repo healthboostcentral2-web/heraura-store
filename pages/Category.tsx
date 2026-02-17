@@ -5,14 +5,15 @@ import { Product, Category } from '../types';
 import { SlidersHorizontal, ChevronRight, Search, X, Check, FilterX } from 'lucide-react';
 import { COLORS } from '../constants';
 import { SEO } from '../components/SEO';
+import { useNavigate } from 'react-router-dom';
 
 interface CategoryProps {
-  onProductClick: (product: Product) => void;
   products: Product[];
   categories: Category[];
 }
 
-export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products, categories }) => {
+export const CategoryPage: React.FC<CategoryProps> = ({ products, categories }) => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('All');
   const [showFilters, setShowFilters] = useState(false);
@@ -39,6 +40,10 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
         ? prev[type].filter(i => i !== value)
         : [...prev[type], value]
     }));
+  };
+
+  const handleProductClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
   };
 
   const currentCategoryData = categories.find(c => c.name === selectedCategory);
@@ -229,7 +234,7 @@ export const CategoryPage: React.FC<CategoryProps> = ({ onProductClick, products
                         <ProductCard 
                         key={product.id} 
                         product={product} 
-                        onClick={onProductClick}
+                        onClick={handleProductClick}
                         />
                     ))}
                     </div>

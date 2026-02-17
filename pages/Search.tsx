@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Product } from '../types';
+import { Product } from '../types';
 import { ProductCard } from '../components/ProductCard';
-import { Search as SearchIcon, X, ArrowRight, TrendingUp } from 'lucide-react';
+import { Search as SearchIcon, X, TrendingUp } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useNavigate } from 'react-router-dom';
 
 interface SearchProps {
-  onNavigate: (view: View) => void;
-  onProductClick: (product: Product) => void;
   products: Product[];
 }
 
-export const Search: React.FC<SearchProps> = ({ onNavigate, onProductClick, products }) => {
+export const Search: React.FC<SearchProps> = ({ products }) => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Product[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -33,6 +33,10 @@ export const Search: React.FC<SearchProps> = ({ onNavigate, onProductClick, prod
 
     return () => clearTimeout(timer);
   }, [query, products]);
+
+  const handleProductClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
+  };
 
   const TRENDING_TAGS = ['Summer Dress', 'Silk Tops', 'Beige Blazer', 'Maxi Skirt', 'Accessories'];
 
@@ -118,7 +122,7 @@ export const Search: React.FC<SearchProps> = ({ onNavigate, onProductClick, prod
                     <ProductCard 
                       key={product.id} 
                       product={product} 
-                      onClick={onProductClick}
+                      onClick={handleProductClick}
                     />
                   ))}
                 </div>

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { View, Order, ShippingDetails } from '../types';
+import { Order, ShippingDetails } from '../types';
 import { Button } from '../components/Button';
 import { PaymentGateway } from '../components/PaymentGateway';
 import { ArrowLeft, MapPin, Mail, Phone, User, ShieldCheck } from 'lucide-react';
 import { db } from '../lib/db';
+import { useNavigate } from 'react-router-dom';
 
 interface CheckoutProps {
-  onNavigate: (view: View) => void;
   onOrderComplete: (order: Order) => void;
 }
 
-export const Checkout: React.FC<CheckoutProps> = ({ onNavigate, onOrderComplete }) => {
+export const Checkout: React.FC<CheckoutProps> = ({ onOrderComplete }) => {
+  const navigate = useNavigate();
   const [showGateway, setShowGateway] = useState(false);
 
   const [form, setForm] = useState<ShippingDetails>({
@@ -38,7 +39,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ onNavigate, onOrderComplete 
 
       if (cart.length === 0) {
           alert("Your cart is empty.");
-          onNavigate(View.HOME);
+          navigate('/');
           return;
       }
 
@@ -92,7 +93,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ onNavigate, onOrderComplete 
       {/* Header */}
       <div className="sticky top-0 z-30 bg-stone-50/90 backdrop-blur-sm px-6 py-4 flex items-center gap-4 border-b border-stone-100">
         <button 
-          onClick={() => onNavigate(View.CART)}
+          onClick={() => navigate('/cart')}
           className="p-2 -ml-2 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-100"
         >
           <ArrowLeft size={20} />
