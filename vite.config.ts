@@ -1,11 +1,44 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Plugin to ensure Netlify _redirects file is generated in dist
+const netlifyRedirect = () => ({
+  name: 'netlify-redirect',
+  writeBundle() {
+    const dir = path.resolve('dist');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const filePath = path.join(dir, '_redirects');
+    fs.writeFileSync(filePath, '/* /index.html 200');
+    console.log('_redirects file created in dist/');
+  }
+});
+
+// Plugin to inject the entry script dynamically
+const injectScript = () => ({
+  name: 'inject-entry-script',
+  transformIndexHtml(html: string) {
+    return html.replace(
+      '</body>',
+      '<script type="module" src="/main.tsx"></script></body>'
+    );
+  }
+});
 
 export default defineConfig({
-  base: '/',
-  plugins: [react()],
+  base: "/",
+  plugins: [react(), netlifyRedirect(), injectScript()],
+  publicDir: 'public',
+  server: {
+    port: 3000
+  },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    sourcemap: false,
+    emptyOutDir: true
   }
-})
+});

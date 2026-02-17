@@ -3,6 +3,7 @@ import { Order } from '../types';
 import { Button } from '../components/Button';
 import { CheckCircle, Package, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../lib/db';
 
 interface OrderSuccessProps {
   order?: Order | null;
@@ -13,13 +14,17 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({ order: propOrder }) 
   const [order, setOrder] = useState<Order | null>(propOrder || null);
   
   useEffect(() => {
-  setOrder({
-    id: "ORD-102938",
-    totalAmount: 999,
-    paymentMethod: "Cash on Delivery",
-    shippingDetails: "demo@email.com"
-  });
-}, []);
+    if (!order) {
+        // Try to fetch latest order
+        const fetchLatest = async () => {
+            const orders = await db.getOrders();
+            if (orders.length > 0) {
+                setOrder(orders[0]); // Most recent
+            }
+        }
+        fetchLatest();
+    }
+  }, [order]);
 
   if (!order) {
       // Fallback state while loading or if no order found
