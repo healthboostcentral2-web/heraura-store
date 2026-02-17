@@ -48,6 +48,26 @@ const App: React.FC = () => {
       setProducts(fetchedProducts || []);
       setCategories(fetchedCategories || []);
       setCart(db.getCart() || []);
+
+      // Initial URL Routing Logic
+      const path = window.location.pathname;
+      if (path === '/cart') setCurrentView(View.CART);
+      else if (path === '/checkout') setCurrentView(View.CHECKOUT);
+      else if (path === '/login') setCurrentView(View.LOGIN);
+      else if (path === '/dashboard') setCurrentView(View.DASHBOARD);
+      else if (path === '/tracking') setCurrentView(View.ORDER_TRACKING);
+      else if (path === '/admin') setCurrentView(View.ADMIN);
+      else if (path === '/category') setCurrentView(View.CATEGORY);
+      else if (path === '/success') setCurrentView(View.ORDER_SUCCESS);
+      else if (path.startsWith('/product/')) {
+          const id = path.split('/')[2];
+          const product = (fetchedProducts || []).find((p: Product) => p.id === id);
+          if (product) {
+              setSelectedProduct(product);
+              setCurrentView(View.PRODUCT);
+          }
+      }
+
     } catch (err) {
       console.error("Failed to fetch data:", err);
       setError("Unable to load application data. Please check your connection.");
@@ -61,16 +81,42 @@ const App: React.FC = () => {
         setIsLoading(false);
     }
     init();
+    
+    // Simple Popstate Handler for Browser Back Button (Reloads to sync state)
+    const handlePopState = () => window.location.reload();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [fetchData]);
 
   const handleNavigate = (view: View) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setCurrentView(view);
+    
+    // Update URL
+    let path = '/';
+    switch (view) {
+        case View.HOME: path = '/'; break;
+        case View.CATEGORY: path = '/category'; break;
+        case View.CART: path = '/cart'; break;
+        case View.CHECKOUT: path = '/checkout'; break;
+        case View.LOGIN: path = '/login'; break;
+        case View.DASHBOARD: path = '/dashboard'; break;
+        case View.ORDER_TRACKING: path = '/tracking'; break;
+        case View.ADMIN: path = '/admin'; break;
+        case View.ORDER_SUCCESS: path = '/success'; break;
+    }
+    
+    // Only push state if we aren't already there (and not Product view which is handled separately)
+    if (view !== View.PRODUCT && window.location.pathname !== path) {
+        window.history.pushState({}, '', path);
+    }
   };
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
-    handleNavigate(View.PRODUCT);
+    window.history.pushState({}, '', `/product/${product.id}`);
+    setCurrentView(View.PRODUCT);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleAddToCart = async (newItem: CartItem) => {
